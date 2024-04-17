@@ -1,6 +1,6 @@
 import { useState } from "react"
 import { GptMessage, MyMessage, TextMessageBox, TypingLoader } from "../../components"
-import { prosConsStreamUseCase } from "../../../core/use-cases"
+import { prosConsStreamGeneratorUseCase } from "../../../core/use-cases"
 
 interface Message{
   text: string
@@ -14,7 +14,7 @@ export const ProsConsStreamPage = () => {
   const handlePost = async(text:string)=>{
     setIsLoading(true)
     setMessages((prev)=>[...prev,{text: text, isgpt: false}])
-
+/* 
     const reader = await prosConsStreamUseCase(text)
     setIsLoading(false)
     if(!reader) return alert('No se pudo generar el reader')
@@ -33,6 +33,20 @@ export const ProsConsStreamPage = () => {
       setMessages((messages)=>{
         const newMessages = [...messages]
         newMessages[newMessages.length-1].text = message
+        return newMessages
+      })
+    } 
+    */
+
+    const stream = await prosConsStreamGeneratorUseCase(text)
+    setIsLoading(false)
+
+    setMessages((messages)=>[...messages,{text: '', isgpt: true}])
+
+    for await (const text of stream){
+      setMessages((messages)=>{
+        const newMessages = [...messages]
+        newMessages[newMessages.length-1].text = text
         return newMessages
       })
     }
