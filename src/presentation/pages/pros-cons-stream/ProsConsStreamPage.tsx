@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useRef, useState } from "react"
 import { GptMessage, MyMessage, TextMessageBox, TypingLoader } from "../../components"
 import { prosConsStreamGeneratorUseCase } from "../../../core/use-cases"
 
@@ -8,37 +8,27 @@ interface Message{
 }
 
 export const ProsConsStreamPage = () => {
+
+  const abortController = useRef(new AbortController())
+
   const [isLoading, setIsLoading] = useState(false)
   const [messages, setMessages] = useState<Message[]>([])
+  const isRunning = useRef(false)
 
   const handlePost = async(text:string)=>{
+
+    if (isRunning.current){
+      abortController.current.abort
+      abortController.current = new AbortController()
+    }
+
     setIsLoading(true)
+    isRunning.current = true    
     setMessages((prev)=>[...prev,{text: text, isgpt: false}])
-/* 
-    const reader = await prosConsStreamUseCase(text)
-    setIsLoading(false)
-    if(!reader) return alert('No se pudo generar el reader')
 
-    const decoder = new TextDecoder()
-    let message = ''
-    setMessages((messages) =>[...messages, {text: message, isgpt: true}])
 
-    while(true){
-
-      const {value, done} = await reader.read()
-      if(done) break
-      const decodedChunk = decoder.decode(value, {stream: true})
-      message += decodedChunk
-
-      setMessages((messages)=>{
-        const newMessages = [...messages]
-        newMessages[newMessages.length-1].text = message
-        return newMessages
-      })
-    } 
-    */
-
-    const stream = await prosConsStreamGeneratorUseCase(text)
+    
+    const stream = prosConsStreamGeneratorUseCase(text, abortController.current.signal)
     setIsLoading(false)
 
     setMessages((messages)=>[...messages,{text: '', isgpt: true}])
@@ -50,6 +40,7 @@ export const ProsConsStreamPage = () => {
         return newMessages
       })
     }
+    isRunning.current = false
 
 
   }
