@@ -8,7 +8,7 @@ interface Image{
 
 export const imageGenerationUseCase = async (
   prompt: string,
-  origalImage?: string,
+  originalImage?: string,
   maskImage?: string
 ): Promise<GeneratedImage> => {
 
@@ -18,7 +18,7 @@ export const imageGenerationUseCase = async (
             headers:{
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({prompt, origalImage, maskImage})
+            body: JSON.stringify({prompt, originalImage, maskImage})
         })
 
         const {url, revised_prompt: alt} = await resp.json()
