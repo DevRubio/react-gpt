@@ -1,6 +1,6 @@
 import { useState } from "react"
 import { GptMessage, GptMessageImage, MyMessage, TextMessageBox, TypingLoader } from "../../components"
-import { imageGenerationUseCase } from '../../../core/use-cases/image-generation.use-case';
+import { imageGenerationUseCase } from '../../../core/use-cases/image-generation/image-generation.use-case';
 
 interface Message{
   text: string
